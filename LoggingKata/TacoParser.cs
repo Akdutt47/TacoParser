@@ -11,42 +11,50 @@
         {
             logger.LogInfo("Begin parsing");
 
-            // Take your line and use line.Split(',') to split it up into an array of strings, separated by the char ','
+            // Split the input line into an array of strings, using ',' as the delimiter
             var cells = line.Split(',');
 
-            // If your array's Length is less than 3, something went wrong
+            // If the array length is less than 3, log an error and return null
             if (cells.Length < 3)
             {
-                // Log error message and return null
+                logger.LogError("Invalid line format. Expected at least 3 comma-separated values.");
                 return null; 
             }
 
-            // TODO: Grab the latitude from your array at index 0
-            // You're going to need to parse your string as a `double`
-            // which is similar to parsing a string as an `int`
-            
-            
-            // TODO: Grab the longitude from your array at index 1
-            // You're going to need to parse your string as a `double`
-            // which is similar to parsing a string as an `int`
-            
-            
-            // TODO: Grab the name from your array at index 2
-            
+            // Parse latitude from the first part of the array (cells[0])
+            double latitude;
+            if (!double.TryParse(cells[0].Trim(), out latitude))
+            {
+                logger.LogError($"Invalid latitude value: {cells[0]}");
+                return null;
+            }
 
-            // TODO: Create a TacoBell class
-            // that conforms to ITrackable
-            
-            // TODO: Create an instance of the Point Struct
-            // TODO: Set the values of the point correctly (Latitude and Longitude) 
+            // Parse longitude from the second part of the array (cells[1])
+            double longitude;
+            if (!double.TryParse(cells[1].Trim(), out longitude))
+            {
+                logger.LogError($"Invalid longitude value: {cells[1]}");
+                return null;
+            }
 
-            // TODO: Create an instance of the TacoBell class
-            // TODO: Set the values of the class correctly (Name and Location)
+            // Grab the name from the third part of the array (cells[2])
+            string name = cells[2].Trim();
 
-            // TODO: Then, return the instance of your TacoBell class,
-            // since it conforms to ITrackable
+            // Create a new Point struct to represent the location
+            var location = new Point(latitude, longitude);
 
-            return null;
+            // Create a new TacoBell instance and set its properties
+            var tacoBell = new TacoBell
+            {
+                Name = name,
+                Location = location
+            };
+
+            // Log the successful parsing
+            logger.LogInfo($"Successfully parsed Taco Bell: {name}, Latitude: {latitude}, Longitude: {longitude}");
+
+            // Return the TacoBell object, which implements ITrackable
+            return tacoBell;
         }
     }
 }
