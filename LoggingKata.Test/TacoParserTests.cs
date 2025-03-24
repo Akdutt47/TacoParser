@@ -8,70 +8,48 @@ namespace LoggingKata.Test
         [Fact]
         public void ShouldReturnNonNullObject()
         {
-            // Arrange
+            //Arrange
             var tacoParser = new TacoParser();
 
-            // Act
-            var actual = tacoParser.Parse("34.073638, -84.677017, Taco Bell Acwort...");
+            //Act
+            var actual = tacoParser.Parse("34.073638,-84.677017,Taco Bell Acworth");
 
-            // Assert
+            //Assert
             Assert.NotNull(actual);
         }
 
         [Theory]
-        [InlineData("34.073638, -84.677017, Taco Bell Acwort...", -84.677017)]  // Example inline data
+        [InlineData("34.073638,-84.677017,Taco Bell Acworth", -84.677017)]
+        [InlineData("33.635282,-86.684056,Taco Bell Birmingham", -86.684056)]
+        [InlineData("30.402123,-86.605877,Taco Bell Destin", -86.605877)]
         public void ShouldParseLongitude(string line, double expected)
         {
-            // Arrange
+            //Arrange
             var tacoParser = new TacoParser();
 
-            // Act
-            var actual = tacoParser.Parse(line);
-            var actualLongitude = actual.Longitude;  // Assuming Parse returns an object with a Longitude property
+            //Act
+            var result = tacoParser.Parse(line);
 
-            // Assert
-            Assert.Equal(expected, actualLongitude);
+            //Assert
+            Assert.NotNull(result);
+            Assert.Equal(expected, result.Location.Longitude, 5);
         }
 
         [Theory]
-        [InlineData("34.073638, -84.677017, Taco Bell Acwort...", 34.073638)]  // Example inline data
+        [InlineData("34.073638,-84.677017,Taco Bell Acworth", 34.073638)]
+        [InlineData("33.635282,-86.684056,Taco Bell Birmingham", 33.635282)]
+        [InlineData("30.402123,-86.605877,Taco Bell Destin", 30.402123)]
         public void ShouldParseLatitude(string line, double expected)
         {
-            // Arrange
+            //Arrange
             var tacoParser = new TacoParser();
 
-            // Act
-            var actual = tacoParser.Parse(line);
-            var actualLatitude = actual.Latitude;  // Assuming Parse returns an object with a Latitude property
+            //Act
+            var result = tacoParser.Parse(line);
 
-            // Assert
-            Assert.Equal(expected, actualLatitude);
+            //Assert
+            Assert.NotNull(result);
+            Assert.Equal(expected, result.Location.Latitude, 5);
         }
-    }
-
-    // Assuming this is the class definition for TacoParser
-    public class TacoParser
-    {
-        public Location Parse(string line)
-        {
-            // Split the input string by commas and extract the latitude and longitude
-            var parts = line.Split(',');
-            double latitude = double.Parse(parts[0].Trim());
-            double longitude = double.Parse(parts[1].Trim());
-
-            return new Location
-            {
-                Latitude = latitude,
-                Longitude = longitude
-            };
-        }
-    }
-
-    // Assuming this is the Location class definition
-    public class Location
-    {
-        public double Latitude { get; set; }
-        public double Longitude { get; set; }
     }
 }
-

@@ -1,4 +1,6 @@
-﻿namespace LoggingKata
+﻿using System;
+
+namespace LoggingKata
 {
     /// <summary>
     /// Parses a POI file to locate all the Taco Bells
@@ -11,49 +13,48 @@
         {
             logger.LogInfo("Begin parsing");
 
-            // Split the input line into an array of strings, using ',' as the delimiter
+            // Split the line into an array of values using ',' as a delimiter
             var cells = line.Split(',');
 
-            // If the array length is less than 3, log an error and return null
+            // If the line doesn't have enough parts, return null
             if (cells.Length < 3)
             {
-                logger.LogError("Invalid line format. Expected at least 3 comma-separated values.");
-                return null; 
-            }
-
-            // Parse latitude from the first part of the array (cells[0])
-            double latitude;
-            if (!double.TryParse(cells[0].Trim(), out latitude))
-            {
-                logger.LogError($"Invalid latitude value: {cells[0]}");
+                logger.LogError("Invalid data - not enough values in line.");
                 return null;
             }
 
-            // Parse longitude from the second part of the array (cells[1])
-            double longitude;
-            if (!double.TryParse(cells[1].Trim(), out longitude))
+            // Parse latitude (Index 0)
+            if (!double.TryParse(cells[0], out double latitude))
             {
-                logger.LogError($"Invalid longitude value: {cells[1]}");
+                logger.LogError($"Failed to parse latitude: {cells[0]}");
                 return null;
             }
 
-            // Grab the name from the third part of the array (cells[2])
-            string name = cells[2].Trim();
+            // Parse longitude (Index 1)
+            if (!double.TryParse(cells[1], out double longitude))
+            {
+                logger.LogError($"Failed to parse longitude: {cells[1]}");
+                return null;
+            }
 
-            // Create a new Point struct to represent the location
-            var location = new Point(latitude, longitude);
+            // Get the name of the Taco Bell (Index 2)
+            string name = cells[2];
 
-            // Create a new TacoBell instance and set its properties
+            // Create an instance of the Point struct and set values
+            var location = new Point
+            {
+                Latitude = latitude,
+                Longitude = longitude
+            };
+
+            // Create an instance of the TacoBell class
             var tacoBell = new TacoBell
             {
                 Name = name,
                 Location = location
             };
 
-            // Log the successful parsing
-            logger.LogInfo($"Successfully parsed Taco Bell: {name}, Latitude: {latitude}, Longitude: {longitude}");
-
-            // Return the TacoBell object, which implements ITrackable
+            // Return the populated TacoBell instance
             return tacoBell;
         }
     }

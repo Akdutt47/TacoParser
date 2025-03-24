@@ -12,57 +12,70 @@ namespace LoggingKata
 
         static void Main(string[] args)
         {
+            // Objective: Find the two Taco Bells that are the farthest apart from one another.
+
             logger.LogInfo("Log initialized");
 
-            // Use File.ReadAllLines(path) to grab all the lines from your csv file.
+            // Read all lines from the CSV file
             var lines = File.ReadAllLines(csvPath);
 
-            // Log the first line to check if the file is being read properly
-            logger.LogInfo($"Lines: {lines[0]}");
+            // Log an error if file is empty, or a warning if it only has one line
+            if (lines.Length == 0)
+            {
+                logger.LogError("File has no data!");
+                return;
+            }
+            else if (lines.Length == 1)
+            {
+                logger.LogWarning("File contains only one location.");
+            }
 
-            // Create a new instance of TacoParser
+            logger.LogInfo($"Lines read: {lines.Length}");
+
+            // Create an instance of TacoParser and parse the locations
             var parser = new TacoParser();
+            var locations = lines.Select(parser.Parse).ToArray();
 
-            // Use the Select LINQ method to parse every line in lines collection
-            var locations = lines.Select(parser.Parse).Where(loc => loc != null).ToArray();
-
-            // Initialize variables to store the two Taco Bells with the largest distance
+            // Variables to store the farthest apart locations
             ITrackable locA = null;
             ITrackable locB = null;
             double maxDistance = 0;
 
-            // NESTED LOOPS SECTION
+            // Loop through each location to compare distances
             for (int i = 0; i < locations.Length; i++)
             {
-                // First loop: Choose the first location (locA)
-                var tacoBellA = locations[i];
-                var corA = new GeoCoordinate(tacoBellA.Location.Latitude, tacoBellA.Location.Longitude);
+                var origin = locations[i];
+
+                // Create a coordinate object for origin
+                var corA = new GeoCoordinate(origin.Location.Latitude, origin.Location.Longitude);
 
                 for (int j = i + 1; j < locations.Length; j++)
                 {
-                    // Second loop: Choose the second location (locB)
-                    var tacoBellB = locations[j];
-                    var corB = new GeoCoordinate(tacoBellB.Location.Latitude, tacoBellB.Location.Longitude);
+                    var destination = locations[j];
 
-                    // Get the distance between the two Taco Bells
+                    // Create a coordinate object for destination
+                    var corB = new GeoCoordinate(destination.Location.Latitude, destination.Location.Longitude);
+
+                    // Calculate the distance between the two locations
                     double distance = corA.GetDistanceTo(corB);
 
-                    // If the distance is larger than the current maximum, update the variables
+                    // If the calculated distance is greater than maxDistance, update variables
                     if (distance > maxDistance)
                     {
                         maxDistance = distance;
-                        locA = tacoBellA;
-                        locB = tacoBellB;
+                        locA = origin;
+                        locB = destination;
                     }
                 }
             }
 
-            // After looping through all the Taco Bells, display the results
-            logger.LogInfo($"The two Taco Bells that are the farthest apart are:");
-            logger.LogInfo($"1. {locA.Name} located at ({locA.Location.Latitude}, {locA.Location.Longitude})");
-            logger.LogInfo($"2. {locB.Name} located at ({locB.Location.Latitude}, {locB.Location.Longitude})");
-            logger.LogInfo($"Distance between them: {maxDistance / 1000} kilometers");
+            // Display the results
+            if (locA != null && locB != null)
+            {
+                logger.LogInfo($"The two farthest Taco Bells are:\n" +
+                               $"{locA.Name} and {locB.Name}.\n" +
+                               $"They are {maxDistance / 1609.34:F2} miles apart.");
+            }
         }
     }
 }
-

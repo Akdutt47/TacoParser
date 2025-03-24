@@ -6,3 +6,4 @@
         public double Longitude { get; set; }
     }
 }
+
